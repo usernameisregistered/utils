@@ -1,6 +1,7 @@
 <template>
   <div class="imageView">
-    <canvas id="viewContainer" @mousewheel="mousewheel" @mousedown="moveStart" @mouseup="moveEnd"></canvas>
+    <canvas id="viewContainer" v-if="!isFail" @mousewheel="mousewheel" @mousedown="moveStart" @mouseup="moveEnd"></canvas>
+    <div v-else>图片加载失败</div>
   </div>
 </template>
 <script>
@@ -18,7 +19,8 @@ export default {
       scaleY: -1,
       zoom: 1,
       centerX: 0,
-      centerY: 0
+      centerY: 0,
+      isFail: false
     }
   },
   props: {
@@ -74,6 +76,7 @@ export default {
       this.currentUrl = this.url[this.currentIndex]
     },
     getImageData() {
+      this.isFail = false
       this.sourceImage = new Image()
       this.sourceImage.src = this.currentUrl
       const self = this
@@ -83,6 +86,9 @@ export default {
         self.centerX = self.sourceImage.naturalWidth / 2
         self.centerY = self.sourceImage.naturalHeight / 2
         self.context.drawImage(self.sourceImage, 0, 0, self.canvas.width, self.canvas.height)
+      }
+      this.sourceImage.onerror = function () {
+        self.isFail = true
       }
     },
     renderImage() {
@@ -216,14 +222,16 @@ export default {
 <style lang="scss" scoped>
 .imageView {
   width: 100%;
-  height: 100%;
-  border: 1px solid red;
+  height: 94%;
   canvas {
     width: 100%;
     height: 100%;
   }
-  #tranData {
-    display: none;
+  div {
+    text-align: center;
+    font-size: 0.48rem;
+    margin-top: 9rem;
+    color: white;
   }
 }
 </style>
