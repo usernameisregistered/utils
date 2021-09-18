@@ -138,6 +138,7 @@ export default {
     mousewheel(e) {
       let timeout
       if (this.zoom >= this.maxZoom || this.zoom <= this.minZoom) {
+        return
       }
       if (timeout) {
         clearTimeout(timeout)
