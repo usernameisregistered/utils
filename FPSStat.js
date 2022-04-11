@@ -4,7 +4,7 @@
  * stats.monitor(0)
  */
 
-window.FPSStat = class FPSStat {
+export class FPSStat {
     /**
      * @private 
      * @description 模式
@@ -99,7 +99,6 @@ window.FPSStat = class FPSStat {
             this.frames = 0;
             if (this.FPSPanelList[2]) {
                 const memory = performance.memory;
-                console.log(memory.usedJSHeapSize / 1048576, memory.jsHeapSizeLimit / 1048576)
                 this.FPSPanelList[2].update(memory.usedJSHeapSize / 1048576, memory.jsHeapSizeLimit / 1048576);
             }
         }
@@ -124,7 +123,7 @@ window.FPSStat = class FPSStat {
                 }, 1000);
                 break;
             case 2:
-                let loop2 = () => {
+                var loop2 = () => {
                     this.update();
                     setTimeout(() => {
                         loop2();
@@ -133,7 +132,7 @@ window.FPSStat = class FPSStat {
                 loop2();
                 break;
             default:
-                let loop = () => {
+                var loop = () => {
                     this.update();
                     requestAnimationFrame(loop);
                 }
@@ -142,7 +141,7 @@ window.FPSStat = class FPSStat {
     }
 }
 
-window.FPSPanel = class FPSPanel {
+class FPSPanel {
 
     /**
      * @private 
@@ -197,31 +196,31 @@ window.FPSPanel = class FPSPanel {
      * @private 
      * @description 帧面板的文字起点X坐标
      */
-    text_x = 0
+    textX = 0
 
     /**
      * @private 
      * @description 帧面板的文字起点Y坐标 
      */
-    text_y = 0
+    textY = 0
 
     /**
      * @private 
      * @description 帧面板的图形起点X坐标 
      */
-    grph_x = 0
+    grphX = 0
 
     /**
      * @private 
      * @description 帧面板的图形起点Y坐标 
      */
-    grph_y = 0
+    grphY = 0
 
     /**
      * @private 
      * @description  
      */
-    grph_h = 0
+    grphH = 0
 
     /**
      * @private 
@@ -254,23 +253,23 @@ window.FPSPanel = class FPSPanel {
         this.context.fillRect(0, 0, this.drawWidth, this.drawHieght);
 
         this.context.fillStyle = fg;
-        this.context.fillText(name, this.text_x, this.text_y);
-        this.context.fillRect(this.grph_x, this.grph_y, this.grph_w, this.grph_h);
+        this.context.fillText(name, this.textX, this.textY);
+        this.context.fillRect(this.grphX, this.grphY, this.grphW, this.grphH);
 
         this.context.fillStyle = bg;
         this.context.globalAlpha = 0.9;
-        this.context.fillRect(this.grph_x, this.grph_y, this.grph_w, this.grph_h);
+        this.context.fillRect(this.grphX, this.grphY, this.grphW, this.grphH);
     }
 
     setPanelArea(width = 80, height = 48, padding = [3, 2]) {
         this.drawWidth = width * this.pr
         this.drawHieght = height * this.pr
-        this.text_x = padding[0] * this.pr
-        this.text_y = padding[1] * this.pr
-        this.grph_x = padding[0] * this.pr
-        this.grph_y = Math.ceil((height - padding[1] * 2) / 3) * this.pr
-        this.grph_h = this.drawHieght - this.grph_y - padding[1]
-        this.grph_w = (width - padding[0] * 2) * this.pr
+        this.textX = padding[0] * this.pr
+        this.textY = padding[1] * this.pr
+        this.grphX = padding[0] * this.pr
+        this.grphY = Math.ceil((height - padding[1] * 2) / 3) * this.pr
+        this.grphH = this.drawHieght - this.grphY - padding[1]
+        this.grphW = (width - padding[0] * 2) * this.pr
         this.canvas.width = this.drawWidth;
         this.canvas.height = this.drawHieght;
         this.canvas.style.cssText = `width:${this.drawWidth}px;height:${this.drawHieght}px`;
@@ -281,13 +280,13 @@ window.FPSPanel = class FPSPanel {
         this.max = Math.max(this.max, value);
         this.context.fillStyle = this.bg;
         this.context.globalAlpha = 1;
-        this.context.fillRect(0, 0, this.drawWidth, this.grph_y);
+        this.context.fillRect(0, 0, this.drawWidth, this.grphY);
         this.context.fillStyle = this.fg;
-        this.context.fillText(Math.round(value) + ' ' + this.name + ' (' + Math.round(this.min) + '-' + Math.round(this.max) + ')', this.text_x, this.text_y);
-        this.context.drawImage(this.canvas, this.grph_x + this.pr, this.grph_y, this.grph_w, this.grph_h, this.grph_x, this.grph_y, this.grph_w - this.pr, this.grph_h);
-        this.context.fillRect(this.grph_x + this.grph_w - this.pr, this.grph_y, this.pr, this.grph_h);
+        this.context.fillText(Math.round(value) + ' ' + this.name + ' (' + Math.round(this.min) + '-' + Math.round(this.max) + ')', this.textX, this.textY);
+        this.context.drawImage(this.canvas, this.grphX + this.pr, this.grphY, this.grphW, this.grphH, this.grphX, this.grphY, this.grphW - this.pr, this.grphH);
+        this.context.fillRect(this.grphX + this.grphW - this.pr, this.grphY, this.pr, this.grphH);
         this.context.fillStyle = this.bg;
         this.context.globalAlpha = 0.9;
-        this.context.fillRect(this.grph_x + this.grph_w - this.pr, this.grph_y, this.pr, Math.round((1 - (value / maxValue)) * this.grph_h));
+        this.context.fillRect(this.grphX + this.grphW - this.pr, this.grphY, this.pr, Math.round((1 - (value / maxValue)) * this.grphH));
     }
 }
