@@ -91,11 +91,11 @@ export class FPSStat {
 
     end() {
         this.frames++
-        let time = (performance || Date).now();
-        this.FPSPanelList[1].update(time - this.startTime, 200)
-        if (time >= this.prevTime + 1000) {
-            this.FPSPanelList[0].update((this.frames * 1000) / (time - this.prevTime), 100);
-            this.prevTime = time;
+        this.start();
+        this.FPSPanelList[1].update(this.startTime - this.prevTime, 200)
+        if (this.startTime >= this.prevTime + 1000) {
+            this.FPSPanelList[0].update((this.frames * 1000) / (this.startTime - this.prevTime), 100);
+            this.prevTime = this.startTime;
             this.frames = 0;
             if (this.FPSPanelList[2]) {
                 const memory = performance.memory;
