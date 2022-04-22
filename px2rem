@@ -1,0 +1,117 @@
+const fs = require("fs");
+const path = require("path")
+
+// 默认参数
+let config = {
+    beforeUnit: 'px', // 转换前的单位
+    viewportWidth: 3840, //ui给定的宽度单位 beforeUnit 
+    unitPrecision: 5, //  精度值
+    standardWidth: 1920, // 标准尺寸单位 beforeUnit 
+    fontSize: 12, // 基准字体大小
+    afterUnit: 'rem', // 转换后的单位
+    minPixelValue: 1 // 需要转换的最小宽度 单位beforeUnit
+}
+const templateRegExp = /<template>([\s\S]+)<\/template>/gi
+const ZPXRegExp = /(\d*\.?\d+)px/gi
+const styleRegExp = /<style(([\s\S])*?)<\/style>/gi
+let vuefiles = [];
+
+// let rootDir = "./circleLayer"
+// start(rootDir)
+
+/**
+ * 开始转换任务
+ * @param {String} rootPath 
+ */
+function start(rootPath) {
+    console.log(`开始获取${rootPath}目录下的所有vue文件`)
+    getVueFiles(rootPath)
+    let fileSize = vuefiles.length
+    console.log(`共需要转换的文件个数为${fileSize}`)
+    vuefiles.forEach((el, i) => {
+        let fileShort = el.replace(rootPath, "").replace(/\\/g, "/").slice(1)
+        console.log(`开始处理[${i + 1}/${fileSize}] 文件名[${fileShort}]`)
+        parseContent(el, fileShort)
+    })
+}
+
+/**
+ * 获取根目录下的所有vue文件
+ * @param {String} rootPath 
+ */
+function getVueFiles(rootPath) {
+    function findJsonFile(dir) {
+        let files = fs.readdirSync(dir);
+        files.forEach(function (item) {
+            let fPath = path.join(dir, item);
+            let stat = fs.statSync(fPath);
+            if (stat.isDirectory() === true) {
+                findJsonFile(fPath);
+            }
+            if (stat.isFile() === true && /vue$/.test(fPath)) {
+                vuefiles.push(fPath);
+            }
+        });
+    }
+    findJsonFile(rootPath);
+}
+
+/**
+ * 
+ * @param {String} fileUrl - 文件路径
+ */
+function parseContent(fileUrl, fileShort) {
+    console.log(`读取${fileShort}文件的内容`)
+    let content = fs.readFileSync(fileUrl).toString()
+    content = replaceTemplate(content)
+    content = replaceStyle(content)
+    console.log("重新写入转换后的文件")
+    fs.writeFileSync(fileUrl, content)
+}
+
+/**
+ * 转换内容中的行内样式
+ * @param {String} content 
+ */
+function replaceTemplate(content) {
+    if (templateRegExp.test(content)) {
+        let source = content.match(templateRegExp)[0];
+        if (ZPXRegExp.test(source)) {
+            console.log("转换内容中的行内样式")
+            let _source = source.replace(ZPXRegExp, createPxReplace())
+            return content.replace(templateRegExp, _source)
+        }
+        return content
+    }
+    return content
+}
+
+/**
+ * 转换内容中的内嵌样式
+ * @param {String} content 
+ */
+function replaceStyle(content) {
+    if (styleRegExp.test(content)) {
+        let source = content.match(styleRegExp)[0];
+        if (ZPXRegExp.test(source)) {
+            console.log("转换内容中的内嵌样式")
+            let _source = source.replace(ZPXRegExp, createPxReplace())
+            return content.replace(styleRegExp, _source)
+        }
+        return content
+    }
+    return content
+}
+
+function createPxReplace() {
+    return function ($0, $1) {
+        if ($1) {
+            var pixels = parseFloat($1)
+            if (pixels > config.minPixelValue) {
+                let transNum = pixels / config.viewportWidth * config.standardWidth / config.fontSize
+                return +transNum.toFixed(config.unitPrecision) + config.afterUnit
+            }
+        }
+        return $1
+    }
+}
