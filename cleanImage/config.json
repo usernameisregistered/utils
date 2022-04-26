@@ -1,0 +1,13 @@
+{
+    "projectName": "项目名称",
+    "fileTypes": [
+        "jpg",
+        "jpeg",
+        "png",
+        "webp"
+    ],
+    "dirs": [
+        "dir"
+    ],
+    "output": "./logger"
+}
